@@ -4,7 +4,6 @@ import isbnlib
 import csv
 # Refer to https://github.com/fabiobatalha/crossrefapi for documentation
 # on using the crossref API for getting info from ISSNs and DOIs
-from crossref.restful import Works
 from crossref.restful import Journals
 
 
@@ -57,10 +56,11 @@ def testISBNAppending(filename):
 
 
 def testISSN(issn):
-    works = Works()
-    journals = Journals()
+    # works = Works()
     # info = works.doi('10.2514/8.7231')
+    journals = Journals()
     info = journals.journal(issn)
+    '''
     info.pop('last-status-check-time')
     info.pop('counts')
     info.pop('breakdowns')
@@ -70,7 +70,19 @@ def testISSN(issn):
     print(info)
     for x in info:
         print(x)
+    '''
+    print(info)
 
+
+def testISSNAppending(filename):
+    '''
+    Test function that just uses a few random ISSNs to check
+    whether appending rows to the exisiting csv is working correctly
+    '''
+    issnRaws = ["0002-2667", "1096-1216",  "1000-9361"]
+    for issn in issnRaws:
+        infoList = getInfoFromISSN(issn)
+        addEntryToISSNLibrary(filename, infoList)
 
 def createISSNLibraryFile(filename):
     '''
@@ -84,44 +96,83 @@ def createISSNLibraryFile(filename):
         write = csv.writer(file)
         write.writerow(categoryList)
 
-
-def addEntryToISSNLibrary(filename, issn):
-    '''
-    Appends a new entry to the ISSN library based on the info in it
-    Inputs: filename, issn (both strings)
-    Outputs: Appends issn information to the given file
-    '''
+def getInfoFromISSN(issn):
+    # Retrieve all information about the ISSN
     journals = Journals()
     info = journals.journal(issn)
+
+    string = ","
+
+    # Retrieve the properties we care about only
     itemTitle = info.get('title')
     itemPub = info.get('publisher')
     itemSubj = info.get('subjects')
     itemISSN = info.get('ISSN')
     itemISSNinfo = info.get('issn-type')
-    infoList = [itemTitle, itemPub, itemSubj, itemISSN, itemISSNinfo]
+
+    # Go through non-string entities and format
+    string = ""
+    # Loop through dict values in list
+    for x in itemSubj:
+        # Gets all the values from this dict
+        # and stores all values in a list
+        temp = [*x.values()]
+        # Joins the items from the list and seperates with a comma
+        temp = ', '.join(map(str, temp))
+        # Adds current dict entry (now string of values) to a string
+        string = string + temp + ', '
+    # Removes trailing ', '
+    itemSubj = string[:-2]
+
+    # Join all ISSNs for this item using a ,
+    itemISSN = ", ".join(itemISSN)
+
+    string = ""
+    # Loop through dict values in list
+    for x in itemISSNinfo:
+        # Gets all the values from this dict
+        # and stores all values in a list
+        temp = [*x.values()]
+        # Joins the items from the list and seperates with a comma
+        temp = ', '.join(map(str, temp))
+        # Adds current dict entry (now string of values) to a string
+        string = string + temp + ', '
+    # Removes trailing ', '
+    itemISSNinfo = string[:-2]
+
+    infoList = [itemTitle, itemPub, itemSubj,
+                itemISSN, itemISSNinfo]
+    return infoList
+
+
+def addEntryToISSNLibrary(filename, infoList):
+    '''
+    Appends a new entry to the ISSN library based on the info in it
+    Inputs: filename, issn (both strings)
+    Outputs: Appends issn information to the given file
+    '''
+
     with open(filename, 'a', newline='') as file:
         write = csv.writer(file)
         write.writerow(infoList)
 
 
-def testISSNAppending(filename):
-    '''
-    Test function that just uses a few random ISSNs to check
-    whether appending rows to the exisiting csv is working correctly
-    '''
-    issnRaws = ["0002-2667", "1096-1216",  "1000-9361"]
-    for issn in issnRaws:
-        addEntryToISSNLibrary(filename, issn)
-
-
 if __name__ == "__main__":
     filename1 = "ISBNlibrary.csv"
     filename2 = "ISSNlibrary.csv"
-    createISBNLibraryFile(filename1)
-    testISBNAppending(filename1)
+
+    # createISBNLibraryFile(filename1)
+    # estISBNAppending(filename1)
     # addBookToLibrary(filename, "978-0-099-52848-7")
     # testISSN('0002-2667')
     # testISSN('1096-1216')
     createISSNLibraryFile(filename2)
+    infoList = getInfoFromISSN('1096-1216')
+    addEntryToISSNLibrary(filename2, infoList)
+
     testISSNAppending(filename2)
-    # addEntryToISSNLibrary(filename2, '0002-2667')
+    # testISSN('0002-2667')
+    # testISSN('0261-2097')
+    # journals = Journals()
+    # x = journals.journal('2052-451X')
+    # x = journals.journal('0102-311X')
