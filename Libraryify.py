@@ -84,17 +84,20 @@ def testISSNAppending(filename):
         infoList = getInfoFromISSN(issn)
         addEntryToISSNLibrary(filename, infoList)
 
+
 def createISSNLibraryFile(filename):
     '''
     Makes a library file for ISSN items, e.g. magazines or other serials
     Inputs: filename, name for the file including .csv
     Outputs: Creates file and fills in header row
     '''
-    categoryList = ['Title', 'Publisher', 'Subjects',
-                    'ISSN', 'ISSN Type']
+    categoryList = ['ISSN', 'ISSN Type', 'Title',
+                    'Publisher', 'Subjects', 'Year',
+                    'Month', 'Volume', 'Issue']
     with open(filename, 'w') as file:
         write = csv.writer(file)
         write.writerow(categoryList)
+
 
 def getInfoFromISSN(issn):
     # Retrieve all information about the ISSN
@@ -151,26 +154,55 @@ def addEntryToISSNLibrary(filename, infoList):
     Inputs: filename, issn (both strings)
     Outputs: Appends issn information to the given file
     '''
-
     with open(filename, 'a', newline='') as file:
         write = csv.writer(file)
         write.writerow(infoList)
+    print("Entry added")
+
+
+def getISSNInput():
+    # Warning! Theres no error checking on user input here so make sure
+    # you do it right or edit in the .csv manually later
+    print("Please enter the information about the curent item,"
+          "entering N/A if not applicable")
+    itemISSN = input("ISSN (including '-'): ")
+    itemYear = input("Year item was published: ")
+    itemMonth = input("Month item was published: ")
+    itemVolume = input("Item volume: ")
+    itemNumber = input("Item number: ")
+    print("Processing...")
+    inputList = [itemISSN, itemYear, itemMonth, itemVolume, itemNumber]
+    return inputList
+
+
+def mergeISSNLists(inputList, infoList):
+    mergedList = [infoList[3], infoList[4], infoList[0],
+                  infoList[1], infoList[2], inputList[1],
+                  inputList[2], inputList[3], inputList[4]]
+    return mergedList
 
 
 if __name__ == "__main__":
     filename1 = "ISBNlibrary.csv"
     filename2 = "ISSNlibrary.csv"
 
-    # createISBNLibraryFile(filename1)
-    # estISBNAppending(filename1)
+    createISBNLibraryFile(filename1)
+    testISBNAppending(filename1)
     # addBookToLibrary(filename, "978-0-099-52848-7")
     # testISSN('0002-2667')
     # testISSN('1096-1216')
-    createISSNLibraryFile(filename2)
-    infoList = getInfoFromISSN('1096-1216')
-    addEntryToISSNLibrary(filename2, infoList)
-
-    testISSNAppending(filename2)
+    #
+    # ISSN Library Builder
+    #
+    # Build the library file
+    #createISSNLibraryFile(filename2)
+    # Get input from user
+    #inputList = getISSNInput()
+    # Retrieve rest of information using ISSN
+    #infoList = getInfoFromISSN(inputList[0])
+    # Take relevent data from both lists and order them
+    #mergedList = mergeISSNLists(inputList, infoList)
+    #addEntryToISSNLibrary(filename2, mergedList)
     # testISSN('0002-2667')
     # testISSN('0261-2097')
     # journals = Journals()
