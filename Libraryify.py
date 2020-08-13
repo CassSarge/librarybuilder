@@ -181,30 +181,34 @@ def mergeISSNLists(inputList, infoList):
                   inputList[2], inputList[3], inputList[4]]
     return mergedList
 
+def addISSNFromUser(filename):
+    # Get input from user
+    inputList = getISSNInput()
+    # Retrieve rest of information using ISSN
+    infoList = getInfoFromISSN(inputList[0])
+    # Take relevent data from both lists and order them
+    mergedList = mergeISSNLists(inputList, infoList)
+    addEntryToISSNLibrary(filename, mergedList)
+
+def addISBNFromUser(filename):
+    # Get input from user
+    UserISBN = input("Please enter ISBN (including '-'): ")
+    # Check its legit
+    if isbnlib.is_isbn13(UserISBN) == True or isbnlib.is_isbn10(UserISBN) == True:
+        # Add book based on ISBN
+        print("Saving data...")
+        addBookToISBNLibrary(filename, UserISBN)
+        print("Done!")
+    else:
+        print("Invalid ISBN")
 
 if __name__ == "__main__":
     filename1 = "ISBNlibrary.csv"
     filename2 = "ISSNlibrary.csv"
 
+    #createISBNLibraryFile(filename1)
+    #testISBNAppending(filename1)
+    print("Creating library files...")
     createISBNLibraryFile(filename1)
-    testISBNAppending(filename1)
-    # addBookToLibrary(filename, "978-0-099-52848-7")
-    # testISSN('0002-2667')
-    # testISSN('1096-1216')
-    #
-    # ISSN Library Builder
-    #
-    # Build the library file
-    #createISSNLibraryFile(filename2)
-    # Get input from user
-    #inputList = getISSNInput()
-    # Retrieve rest of information using ISSN
-    #infoList = getInfoFromISSN(inputList[0])
-    # Take relevent data from both lists and order them
-    #mergedList = mergeISSNLists(inputList, infoList)
-    #addEntryToISSNLibrary(filename2, mergedList)
-    # testISSN('0002-2667')
-    # testISSN('0261-2097')
-    # journals = Journals()
-    # x = journals.journal('2052-451X')
-    # x = journals.journal('0102-311X')
+    createISSNLibraryFile(filename2)
+    print("Done!")
